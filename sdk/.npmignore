@@ -1,0 +1,6 @@
+index.html
+src/
+node_modules/
+.vscode/
+*.log
+*.ts

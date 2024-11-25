@@ -1,0 +1,20 @@
+{
+  "name": "quntta-track-sdk",
+  "version": "1.0.2",
+  "description": "",
+  "files": ["dist"],
+  "main": "./dist/quntta-track-sdk.umd.js",
+  "module": "./dist/quntta-track-sdk.es.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": ["前端", "埋点", "tracker"],
+  "author": "quntta",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^5.4.11",
+    "typescript": "^5.0.0"
+  }
+}
