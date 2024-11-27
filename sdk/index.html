@@ -4,8 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <script src="./dist/quntta-track-sdk.umd.js"></script>
 </head>
 <body>
-  <script src="./src/main.ts" type="module"></script>
+  <img src="https:www.gaga.com/img/1.jpg" alt="">
+  <div class="test" style="width: 100px;height: 100px;background: red;" data-track="eventType=click&eventId=123"></div>
+  <button onclick="goToHashRoute()">Go to Hash Route</button>
+  <button onclick="goToHistoryRoute()">Go to History Route</button>
+  <script src="./src/test.js"></script>
+  <!-- <script src="./src/apitest/request.js" type="module"></script> -->
+  <script>
+    function goToHashRoute() {
+      location.hash = '#section1';
+    }
+    function goToHistoryRoute() {
+      history.pushState({ key: 'value' }, 'Title', '/new-path');
+    }
+  </script>
 </body>
 </html>

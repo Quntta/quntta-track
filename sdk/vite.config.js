@@ -1,4 +1,5 @@
 const path = require('path')
+const { server } = require('typescript')
 const { build } = require('vite')
 const { defineConfig } = require('vite')
 module.exports = defineConfig({
@@ -15,5 +16,8 @@ module.exports = defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src')
     }
+  },
+  server: {
+    open: true
   }
 })
