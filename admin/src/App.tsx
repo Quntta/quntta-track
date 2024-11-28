@@ -1,12 +1,10 @@
-import { Button } from 'antd'
+import Route from '@/route'
 import './App.css'
 
 function App() {
 
   return (
-    <>
-      <Button type="primary">Button</Button>
-    </>
+    <Route />
   )
 }
 
