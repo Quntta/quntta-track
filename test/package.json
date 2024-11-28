@@ -8,7 +8,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "quntta-track-sdk": "latest"
+    "quntta-track": "^1.0.4"
   },
   "devDependencies": {
     "vite": "5.4.11"

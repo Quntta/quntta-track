@@ -1,16 +1,17 @@
-
 {
   "compilerOptions": {
     "target": "es5",
+    "lib": ["ES2015", "DOM"],
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["./global.d.ts"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "global.d.ts"]
 }

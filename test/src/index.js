@@ -1,4 +1,8 @@
-import track from 'quntta-track-sdk'
-track.init()
-import test_ from './test.js'
-console.log(test_)
+import track from 'quntta-track';
+console.log('track', track);
+track.init({
+  serverUrl: 'http://localhost:3000',
+  appId: '123'
+});
+
+console.log(gaga);
