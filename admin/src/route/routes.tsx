@@ -4,7 +4,7 @@ import Login from '@/pages/login'
 import NotFount from '@/pages/404'
 export const authRoute = [
   { index: true, element: <Home /> },
-  { path: 'about/:id', element: <About /> },
+  { path: 'about', element: <About /> },
   { path: '*', element: <NotFount /> }
 ]
 

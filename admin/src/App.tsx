@@ -1,5 +1,4 @@
 import Route from '@/route'
-import './App.css'
 
 function App() {
 
