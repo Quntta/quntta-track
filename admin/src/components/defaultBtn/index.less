@@ -1,0 +1,21 @@
+.default-btn {
+  border-radius: 18px;
+  border: none;
+  box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.15);
+  color: var(--ant-color-primary);
+}
+
+.link-btn {
+  position: relative;
+  ::after {
+    content: '';
+    position: absolute;
+    width: 40%;
+    height: 2px;
+    background-color: var(--ant-color-primary);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 0.3s;
+  }
+}

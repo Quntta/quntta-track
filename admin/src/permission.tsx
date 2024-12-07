@@ -1,4 +1,5 @@
 import React, { useEffect, useState, PropsWithChildren } from "react"
+import { Flex, Spin } from 'antd'
 import { useLocation, useNavigate } from "react-router-dom"
 import { getItem } from "./utils"
 
@@ -17,7 +18,9 @@ const Prmission: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   }, [location.pathname, navigate])
 
   if (loading) {
-    return <div>Loading...</div>
+    return (<Flex align="center" gap="middle">
+      <Spin size="large" />
+    </Flex>)
   }
 
   return <>{children}</>
