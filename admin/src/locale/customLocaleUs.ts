@@ -8,7 +8,8 @@ const customLocale = {
     'app.register': 'register',
     'app.register.here': 'Register here!',
     'app.zh': 'Chinese',
-    'app.us': 'English'
+    'app.us': 'English',
+    'app.register.now': 'Register here'
   }
   // 其他组件的自定义配置
 };

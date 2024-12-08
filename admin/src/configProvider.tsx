@@ -1,12 +1,19 @@
 import React, { PropsWithChildren } from "react"
 import { ConfigProvider } from "antd"
-import useLocale from './locale/useLocale'
+import { useCustomLocale, MyLocalProvider } from './locale/useLocale'
 import type { Locale } from 'antd/lib/locale'
 
 const ConfigProviderWrapper: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
-  const [locale] = useLocale()
-  const antdLocale = locale as Locale // 添加这一行
-  return <ConfigProvider theme={{ cssVar: true, hashed: false }} locale={antdLocale}>{children}</ConfigProvider>
+  const { customLocale } = useCustomLocale()
+  return <ConfigProvider theme={{ cssVar: true, hashed: false }} locale={customLocale as Locale}>{children}</ConfigProvider>
 }
 
-export default ConfigProviderWrapper
+const Root: React.FC<PropsWithChildren<unknown>> = ({ children }) => (
+  <MyLocalProvider>
+    <ConfigProviderWrapper>
+      {children}
+    </ConfigProviderWrapper>
+  </MyLocalProvider>
+)
+
+export default Root

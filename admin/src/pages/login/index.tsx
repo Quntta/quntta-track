@@ -5,8 +5,6 @@ import FullBtn from '@/components/fullBtn'
 import DefaultBtn from '@/components/defaultBtn'
 import LoginImg from '@/assets/login-p.png'
 import { useCustomLocale } from '@/hooks'
-// import useLocale from '@/locale/useLocale'
-// import { CustomLocale } from '@/types'
 import LanguageSwitch from '@/components/languageSwith'
 import './index.less'
 
@@ -25,16 +23,13 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
 
 const Login: React.FC = () => {
   const [active, setActive] = useState('signIn')
-  // const [locale, setLocale] = useLocale() as [CustomLocale, (locale: string) => void]
   const custom = useCustomLocale()
-  console.log('custom', custom)
-  // console.log('locale', locale)
   return <div className='wrapper'>
     <Flex className="left-wrapper">
       <div className="left-bg"></div>
       <div className="login-info">
         <div className="login-title">Sign In to <br />Quntta-track Admin</div>
-        <div className="login-message">if you don't have an account <br />You can<Button type='link' onClick={() => setActive('register')}>Register here!</Button></div>
+        <div className="login-message">if you don't have an account <br />You can<Button type='link' onClick={() => setActive('register')}>{custom['app.register.now']}!</Button></div>
       </div>
       <div className="login-img-wrapper">
         <img className='login-img' src={LoginImg} alt="" />
@@ -44,10 +39,8 @@ const Login: React.FC = () => {
       <Flex justify="flex-end">
         <Space size="middle">
           <LanguageSwitch />
-          <DefaultBtn onClick={() => { setActive('signIn') }} type={active === 'signIn' ? 'link' : 'default'}>sign in</DefaultBtn>
-          <DefaultBtn onClick={() => { setActive('register') }} type={active === 'register' ? 'link' : 'default'}>register</DefaultBtn>
-          {/* <DefaultBtn onClick={() => { setLocale('zh') }}>中文</DefaultBtn> */}
-          {/* <DefaultBtn onClick={() => { setLocale('us') }}>英文</DefaultBtn> */}
+          <DefaultBtn onClick={() => { setActive('signIn') }} type={active === 'signIn' ? 'link' : 'default'}>{custom['app.login']}</DefaultBtn>
+          <DefaultBtn onClick={() => { setActive('register') }} type={active === 'register' ? 'link' : 'default'}>{custom['app.register']}</DefaultBtn>
         </Space>
       </Flex>
       <Flex justify='center' align='center' style={{ height: '100%' }}>
