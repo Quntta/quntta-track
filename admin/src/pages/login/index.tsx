@@ -4,6 +4,10 @@ import { Form, Input, Flex, Space, Button } from 'antd'
 import FullBtn from '@/components/fullBtn'
 import DefaultBtn from '@/components/defaultBtn'
 import LoginImg from '@/assets/login-p.png'
+import { useCustomLocale } from '@/hooks'
+// import useLocale from '@/locale/useLocale'
+// import { CustomLocale } from '@/types'
+import LanguageSwitch from '@/components/languageSwith'
 import './index.less'
 
 type FieldType = {
@@ -21,6 +25,10 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
 
 const Login: React.FC = () => {
   const [active, setActive] = useState('signIn')
+  // const [locale, setLocale] = useLocale() as [CustomLocale, (locale: string) => void]
+  const custom = useCustomLocale()
+  console.log('custom', custom)
+  // console.log('locale', locale)
   return <div className='wrapper'>
     <Flex className="left-wrapper">
       <div className="left-bg"></div>
@@ -35,8 +43,11 @@ const Login: React.FC = () => {
     <Flex className="right-wrapper" vertical>
       <Flex justify="flex-end">
         <Space size="middle">
+          <LanguageSwitch />
           <DefaultBtn onClick={() => { setActive('signIn') }} type={active === 'signIn' ? 'link' : 'default'}>sign in</DefaultBtn>
           <DefaultBtn onClick={() => { setActive('register') }} type={active === 'register' ? 'link' : 'default'}>register</DefaultBtn>
+          {/* <DefaultBtn onClick={() => { setLocale('zh') }}>中文</DefaultBtn> */}
+          {/* <DefaultBtn onClick={() => { setLocale('us') }}>英文</DefaultBtn> */}
         </Space>
       </Flex>
       <Flex justify='center' align='center' style={{ height: '100%' }}>
@@ -66,7 +77,7 @@ const Login: React.FC = () => {
             <Input.Password placeholder='请输入密码' allowClear />
           </Form.Item>
           <Form.Item label={null}>
-            <FullBtn onClick={() => { console.log('click') }} disabled={active === 'register'}>{active === 'signIn' ? '登录' : '注册'}</FullBtn>
+            <FullBtn onClick={() => { console.log('click') }} disabled={active === 'register'}>{active === 'signIn' ? custom['app.login'] : custom['app.register']}</FullBtn>
           </Form.Item>
         </Form>
       </Flex>

@@ -1,12 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ConfigProvider } from 'antd'
 import Route from '@/route'
+import 'dayjs/locale/zh-cn'
 import './index.css'
+import ConfigProviderWrapper from './configProvider'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ConfigProvider theme={{ cssVar: true, hashed: false }}>
+    <ConfigProviderWrapper>
       <Route />
-    </ConfigProvider>
+    </ConfigProviderWrapper>
   </StrictMode>,
 )

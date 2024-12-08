@@ -5,7 +5,7 @@ import {
   UserOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons'
-import useAuthNavigate from "@/hooks/useAuthNavigate"
+import { useAuthNavigate } from "@/hooks"
 import { useNavigate, Link, useLocation } from "react-router-dom"
 import type { MenuProps } from "antd"
 
