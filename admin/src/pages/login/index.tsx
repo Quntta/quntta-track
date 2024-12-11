@@ -1,29 +1,39 @@
 import React, { useState } from 'react'
-import type { FormProps } from 'antd'
 import { Form, Input, Flex, Space, Button } from 'antd'
+import { useLocation, useNavigate } from "react-router-dom"
 import FullBtn from '@/components/fullBtn'
 import DefaultBtn from '@/components/defaultBtn'
 import LoginImg from '@/assets/login-p.png'
 import { useCustomLocale } from '@/hooks'
 import LanguageSwitch from '@/components/languageSwith'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '@/store'
+import { setUserInfo } from '@/store/userSlice'
 import './index.less'
 
 type FieldType = {
-  username?: string
-  password?: string
+  userName?: string
+  passWord?: string
 }
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-  console.log('Success:', values)
-}
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  console.log('Failed:', errorInfo)
-}
 
 const Login: React.FC = () => {
   const [active, setActive] = useState('signIn')
+  const [form] = Form.useForm()
   const custom = useCustomLocale()
+  const navigate = useNavigate()
+  const userName = useSelector((state: RootState) => state.user.userInfo.userName)
+  const dispatch = useDispatch()
+  const onSubmit = () => {
+    form.validateFields().then(() => {
+      const values = form.getFieldsValue()
+      console.log('values', values)
+      dispatch(setUserInfo(values || ''))
+      navigate('/')
+    }).catch((err) => {
+      console.log('error', err)
+    })
+  }
   return <div className='wrapper'>
     <Flex className="left-wrapper">
       <div className="left-bg"></div>
@@ -45,32 +55,32 @@ const Login: React.FC = () => {
       </Flex>
       <Flex justify='center' align='center' style={{ height: '100%' }}>
         <Form
+          form={form}
           name="basic"
           labelCol={{ span: 0 }}
           wrapperCol={{ span: 24 }}
           style={{ width: 300 }}
           initialValues={{ remember: true }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
           <Form.Item<FieldType>
             label={null}
-            name="username"
+            name="userName"
             rules={[{ required: true, message: '请输入用户名!' }]}
+            initialValue={userName}
           >
             <Input placeholder='请输入用户名' allowClear />
           </Form.Item>
 
           <Form.Item<FieldType>
             label={null}
-            name="password"
+            name="passWord"
             rules={[{ required: true, message: '请输入密码!' }]}
           >
             <Input.Password placeholder='请输入密码' allowClear />
           </Form.Item>
           <Form.Item label={null}>
-            <FullBtn onClick={() => { console.log('click') }} disabled={active === 'register'}>{active === 'signIn' ? custom['app.login'] : custom['app.register']}</FullBtn>
+            <FullBtn onClick={() => onSubmit()} disabled={active === 'register'}>{active === 'signIn' ? custom['app.login'] : custom['app.register']}</FullBtn>
           </Form.Item>
         </Form>
       </Flex>
