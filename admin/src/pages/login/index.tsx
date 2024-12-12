@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Form, Input, Flex, Space, Button } from 'antd'
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import FullBtn from '@/components/fullBtn'
 import DefaultBtn from '@/components/defaultBtn'
 import LoginImg from '@/assets/login-p.png'
@@ -8,7 +8,8 @@ import { useCustomLocale } from '@/hooks'
 import LanguageSwitch from '@/components/languageSwith'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store'
-import { setUserInfo } from '@/store/userSlice'
+import type { AppDispatch } from '@/store'
+import { setUserInfo, fetchTodos } from '@/store/userSlice'
 import './index.less'
 
 type FieldType = {
@@ -23,13 +24,15 @@ const Login: React.FC = () => {
   const custom = useCustomLocale()
   const navigate = useNavigate()
   const userName = useSelector((state: RootState) => state.user.userInfo.userName)
-  const dispatch = useDispatch()
+  const dispatch: AppDispatch = useDispatch()
   const onSubmit = () => {
     form.validateFields().then(() => {
       const values = form.getFieldsValue()
       console.log('values', values)
       dispatch(setUserInfo(values || ''))
-      navigate('/')
+      dispatch(fetchTodos('123'))
+      // dispatch({ type: 'user/setUserInfo', payload: values })
+      // navigate('/')
     }).catch((err) => {
       console.log('error', err)
     })
