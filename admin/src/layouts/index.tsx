@@ -1,10 +1,11 @@
 import React, { useState } from "react"
-import { Outlet } from "react-router"
+import { Outlet } from "react-router-dom"
 import "./index.css"
 import Headerbar from "./headerbar"
 import Sidebar from "./sidebar"
+import Content from "./content"
 import { Layout } from "antd"
-const { Header, Sider, Content } = Layout
+const { Header, Sider } = Layout
 const MyLayOut: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false)
   return (
@@ -16,14 +17,7 @@ const MyLayOut: React.FC = () => {
         <Header className="site-layout-background" style={{ padding: 0 }}>
           <Headerbar collapsed={collapsed} setCollapsed={setCollapsed} />
         </Header>
-        <Content
-          className="site-layout-background"
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-          }}
-        >
+        <Content>
           <Outlet />
         </Content>
       </Layout>
