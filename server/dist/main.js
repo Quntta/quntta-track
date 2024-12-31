@@ -227,13 +227,24 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppModule = void 0;
 const common_1 = __webpack_require__(6);
 const user_module_1 = __webpack_require__(7);
-const range_module_1 = __webpack_require__(10);
+const range_module_1 = __webpack_require__(12);
+const config_1 = __webpack_require__(10);
+const envFilePath = process.env.NODE_ENV === 'production'
+    ? '.env.production'
+    : '.env.development';
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [user_module_1.UserModule, range_module_1.RangeModule],
+        imports: [
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                envFilePath,
+            }),
+            user_module_1.UserModule,
+            range_module_1.RangeModule,
+        ],
         controllers: [],
         providers: [],
     })
@@ -293,16 +304,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserController = void 0;
 const common_1 = __webpack_require__(6);
 const user_service_1 = __webpack_require__(9);
+const config_1 = __webpack_require__(10);
+const config_enum_1 = __webpack_require__(11);
 let UserController = class UserController {
-    constructor(UserService) {
+    constructor(UserService, ConfigService) {
         this.UserService = UserService;
+        this.ConfigService = ConfigService;
     }
     getUsers() {
+        const db = this.ConfigService.get(config_enum_1.ConfigEnum.DB);
+        console.log('db', db);
+        console.log(process.env.NODE_ENV);
         return this.UserService.getUsers();
     }
     addUser(user) {
@@ -325,7 +342,7 @@ __decorate([
 ], UserController.prototype, "addUser", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
-    __metadata("design:paramtypes", [typeof (_a = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _a : Object, typeof (_b = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _b : Object])
 ], UserController);
 
 
@@ -372,6 +389,29 @@ exports.UserService = UserService = __decorate([
 
 /***/ }),
 /* 10 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@nestjs/config");
+
+/***/ }),
+/* 11 */
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ConfigEnum = void 0;
+var ConfigEnum;
+(function (ConfigEnum) {
+    ConfigEnum["DB"] = "DB";
+    ConfigEnum["DB_HOST"] = "DB_HOST";
+    ConfigEnum["PORT"] = "PORT";
+})(ConfigEnum || (exports.ConfigEnum = ConfigEnum = {}));
+
+
+/***/ }),
+/* 12 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -385,8 +425,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RangeModule = void 0;
 const common_1 = __webpack_require__(6);
-const range_controller_1 = __webpack_require__(11);
-const range_service_1 = __webpack_require__(12);
+const range_controller_1 = __webpack_require__(13);
+const range_service_1 = __webpack_require__(14);
 let RangeModule = class RangeModule {
 };
 exports.RangeModule = RangeModule;
@@ -399,7 +439,7 @@ exports.RangeModule = RangeModule = __decorate([
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -420,7 +460,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RangeController = void 0;
 const common_1 = __webpack_require__(6);
-const range_service_1 = __webpack_require__(12);
+const range_service_1 = __webpack_require__(14);
 let RangeController = class RangeController {
     constructor(rangeService) {
         this.rangeService = rangeService;
@@ -444,7 +484,7 @@ exports.RangeController = RangeController = __decorate([
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -551,7 +591,7 @@ exports.RangeService = RangeService = __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("42585a1b856dcc9a1f0c")
+/******/ 		__webpack_require__.h = () => ("437dcfd0b9e9be4c69ce")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
