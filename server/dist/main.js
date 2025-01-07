@@ -229,9 +229,13 @@ const common_1 = __webpack_require__(6);
 const user_module_1 = __webpack_require__(7);
 const range_module_1 = __webpack_require__(12);
 const config_1 = __webpack_require__(10);
-const envFilePath = process.env.NODE_ENV === 'production'
-    ? '.env.production'
-    : '.env.development';
+const typeorm_1 = __webpack_require__(15);
+const config_enum_1 = __webpack_require__(11);
+const user_entity_1 = __webpack_require__(16);
+const profile_entity_1 = __webpack_require__(18);
+const logs_entity_1 = __webpack_require__(19);
+const roles_entity_1 = __webpack_require__(20);
+const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -244,6 +248,21 @@ exports.AppModule = AppModule = __decorate([
             }),
             user_module_1.UserModule,
             range_module_1.RangeModule,
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (configService) => ({
+                    type: configService.get(config_enum_1.ConfigEnum.DB_TYPE),
+                    host: configService.get(config_enum_1.ConfigEnum.DB_HOST),
+                    port: configService.get(config_enum_1.ConfigEnum.DB_PORT),
+                    username: configService.get(config_enum_1.ConfigEnum.DB_USER),
+                    password: configService.get(config_enum_1.ConfigEnum.DB_ROOT_PASSWORD),
+                    database: configService.get(config_enum_1.ConfigEnum.DB_DATABASE),
+                    entities: [user_entity_1.User, profile_entity_1.Profile, logs_entity_1.Logs, roles_entity_1.Roles],
+                    synchronize: true,
+                    logging: ['error'],
+                }),
+            }),
         ],
         controllers: [],
         providers: [],
@@ -405,8 +424,14 @@ exports.ConfigEnum = void 0;
 var ConfigEnum;
 (function (ConfigEnum) {
     ConfigEnum["DB"] = "DB";
+    ConfigEnum["DB_TYPE"] = "DB_TYPE";
     ConfigEnum["DB_HOST"] = "DB_HOST";
+    ConfigEnum["DB_PORT"] = "DB_PORT";
     ConfigEnum["PORT"] = "PORT";
+    ConfigEnum["DB_ROOT_PASSWORD"] = "DB_ROOT_PASSWORD";
+    ConfigEnum["DB_DATABASE"] = "DB_DATABASE";
+    ConfigEnum["DB_USER"] = "DB_USER";
+    ConfigEnum["DB_PASSWORD"] = "DB_PASSWORD";
 })(ConfigEnum || (exports.ConfigEnum = ConfigEnum = {}));
 
 
@@ -529,6 +554,214 @@ exports.RangeService = RangeService = __decorate([
 ], RangeService);
 
 
+/***/ }),
+/* 15 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@nestjs/typeorm");
+
+/***/ }),
+/* 16 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.User = void 0;
+const logs_entity_1 = __webpack_require__(19);
+const roles_entity_1 = __webpack_require__(20);
+const typeorm_1 = __webpack_require__(17);
+let User = class User {
+};
+exports.User = User;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], User.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "userid", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "username", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => logs_entity_1.Logs, (logs) => logs.user),
+    __metadata("design:type", Array)
+], User.prototype, "logs", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => roles_entity_1.Roles, (roles) => roles.users),
+    (0, typeorm_1.JoinTable)({ name: 'users_roles' }),
+    __metadata("design:type", Array)
+], User.prototype, "roles", void 0);
+exports.User = User = __decorate([
+    (0, typeorm_1.Entity)()
+], User);
+
+
+/***/ }),
+/* 17 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("typeorm");
+
+/***/ }),
+/* 18 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Profile = void 0;
+const typeorm_1 = __webpack_require__(17);
+const user_entity_1 = __webpack_require__(16);
+let Profile = class Profile {
+};
+exports.Profile = Profile;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], Profile.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Profile.prototype, "gender", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Profile.prototype, "photo", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Profile.prototype, "address", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
+], Profile.prototype, "birthdate", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => user_entity_1.User),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object)
+], Profile.prototype, "user", void 0);
+exports.Profile = Profile = __decorate([
+    (0, typeorm_1.Entity)()
+], Profile);
+
+
+/***/ }),
+/* 19 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Logs = void 0;
+const typeorm_1 = __webpack_require__(17);
+const user_entity_1 = __webpack_require__(16);
+let Logs = class Logs {
+};
+exports.Logs = Logs;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], Logs.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Logs.prototype, "path", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Logs.prototype, "method", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Logs.prototype, "data", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Logs.prototype, "result", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.logs),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object)
+], Logs.prototype, "user", void 0);
+exports.Logs = Logs = __decorate([
+    (0, typeorm_1.Entity)()
+], Logs);
+
+
+/***/ }),
+/* 20 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Roles = void 0;
+const typeorm_1 = __webpack_require__(17);
+const user_entity_1 = __webpack_require__(16);
+let Roles = class Roles {
+};
+exports.Roles = Roles;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], Roles.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Roles.prototype, "name", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => user_entity_1.User, (user) => user.roles),
+    __metadata("design:type", Array)
+], Roles.prototype, "users", void 0);
+exports.Roles = Roles = __decorate([
+    (0, typeorm_1.Entity)()
+], Roles);
+
+
 /***/ })
 /******/ 	]);
 /************************************************************************/
@@ -591,7 +824,7 @@ exports.RangeService = RangeService = __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("437dcfd0b9e9be4c69ce")
+/******/ 		__webpack_require__.h = () => ("82d180fcaab8ef1f3533")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
