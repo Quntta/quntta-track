@@ -227,14 +227,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppModule = void 0;
 const common_1 = __webpack_require__(6);
 const user_module_1 = __webpack_require__(7);
-const range_module_1 = __webpack_require__(12);
-const config_1 = __webpack_require__(10);
-const typeorm_1 = __webpack_require__(15);
-const config_enum_1 = __webpack_require__(11);
-const user_entity_1 = __webpack_require__(16);
-const profile_entity_1 = __webpack_require__(18);
-const logs_entity_1 = __webpack_require__(19);
-const roles_entity_1 = __webpack_require__(20);
+const range_module_1 = __webpack_require__(17);
+const config_1 = __webpack_require__(16);
+const typeorm_1 = __webpack_require__(10);
+const config_enum_1 = __webpack_require__(20);
+const user_entity_1 = __webpack_require__(11);
+const profile_entity_1 = __webpack_require__(15);
+const logs_entity_1 = __webpack_require__(12);
+const roles_entity_1 = __webpack_require__(14);
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 let AppModule = class AppModule {
 };
@@ -260,7 +260,7 @@ exports.AppModule = AppModule = __decorate([
                     database: configService.get(config_enum_1.ConfigEnum.DB_DATABASE),
                     entities: [user_entity_1.User, profile_entity_1.Profile, logs_entity_1.Logs, roles_entity_1.Roles],
                     synchronize: true,
-                    logging: ['error'],
+                    logging: true,
                 }),
             }),
         ],
@@ -294,11 +294,15 @@ exports.UserModule = void 0;
 const common_1 = __webpack_require__(6);
 const user_controller_1 = __webpack_require__(8);
 const user_service_1 = __webpack_require__(9);
+const typeorm_1 = __webpack_require__(10);
+const user_entity_1 = __webpack_require__(11);
+const logs_entity_1 = __webpack_require__(12);
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
 exports.UserModule = UserModule = __decorate([
     (0, common_1.Module)({
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, logs_entity_1.Logs])],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService],
     })
@@ -323,26 +327,38 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserController = void 0;
 const common_1 = __webpack_require__(6);
 const user_service_1 = __webpack_require__(9);
-const config_1 = __webpack_require__(10);
-const config_enum_1 = __webpack_require__(11);
+const config_1 = __webpack_require__(16);
+const user_entity_1 = __webpack_require__(11);
 let UserController = class UserController {
     constructor(UserService, ConfigService) {
         this.UserService = UserService;
         this.ConfigService = ConfigService;
     }
     getUsers() {
-        const db = this.ConfigService.get(config_enum_1.ConfigEnum.DB);
-        console.log('db', db);
-        console.log(process.env.NODE_ENV);
-        return this.UserService.getUsers();
+        return this.UserService.findAll();
     }
     addUser(user) {
-        return this.UserService.addUser(user);
+        return this.UserService.create(user);
+    }
+    getProfile(id) {
+        console.log('id', id);
+        return this.UserService.findProfile(1);
+    }
+    getLogs(id) {
+        return this.UserService.findLogs(1);
+    }
+    async getLogsByGroup(id) {
+        console.log('id', id);
+        const res = await this.UserService.findLogsByGroup(id);
+        return res.map((item) => ({
+            result: item.result,
+            count: item.count,
+        }));
     }
 };
 exports.UserController = UserController;
@@ -356,9 +372,30 @@ __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object]),
     __metadata("design:returntype", Object)
 ], UserController.prototype, "addUser", null);
+__decorate([
+    (0, common_1.Get)('profile'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Object)
+], UserController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Get)('logs'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Object)
+], UserController.prototype, "getLogs", null);
+__decorate([
+    (0, common_1.Get)('logsByGroup'),
+    __param(0, (0, common_1.Query)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
+], UserController.prototype, "getLogsByGroup", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [typeof (_a = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _a : Object, typeof (_b = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _b : Object])
@@ -377,32 +414,84 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserService = void 0;
 const common_1 = __webpack_require__(6);
+const typeorm_1 = __webpack_require__(10);
+const user_entity_1 = __webpack_require__(11);
+const typeorm_2 = __webpack_require__(13);
+const logs_entity_1 = __webpack_require__(12);
 let UserService = class UserService {
-    getUsers() {
-        return {
-            code: 0,
-            data: [
-                { id: 1, name: 'John Doe' },
-                { id: 2, name: 'Jane Doe' },
-            ],
-            message: 'success',
-        };
+    constructor(userRepository, logsRepository) {
+        this.userRepository = userRepository;
+        this.logsRepository = logsRepository;
     }
-    addUser(user) {
-        console.log('User added:', user);
-        return {
-            code: 0,
-            data: null,
-            message: 'success',
-        };
+    findAll() {
+        return this.userRepository.find();
+    }
+    find(id) {
+        return this.userRepository.findOne({ where: { id } });
+    }
+    findOne(userid) {
+        return this.userRepository.findOne({ where: { userid } });
+    }
+    async create(user) {
+        console.log('user', user);
+        const userTemp = this.userRepository.create(user);
+        return this.userRepository.save(userTemp);
+    }
+    async update(id, user) {
+        await this.userRepository.update(id, user);
+        return this.find(id);
+    }
+    async delete(id) {
+        await this.userRepository.delete(id);
+    }
+    findProfile(id) {
+        return this.userRepository.findOne({
+            where: { id },
+            relations: {
+                profile: true,
+            },
+        });
+    }
+    async findLogs(id) {
+        const user = await this.find(id);
+        if (!user) {
+            return null;
+        }
+        return this.logsRepository.find({
+            where: { user },
+            relations: {
+                user: true,
+            },
+        });
+    }
+    findLogsByGroup(id) {
+        return this.logsRepository
+            .createQueryBuilder('logs')
+            .select('logs.result', 'result')
+            .addSelect('COUNT(logs.result)', 'count')
+            .leftJoinAndSelect('logs.user', 'user')
+            .where('user.id = :id', { id })
+            .groupBy('logs.result')
+            .orderBy('count', 'DESC')
+            .getRawMany();
     }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(logs_entity_1.Logs)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object])
 ], UserService);
 
 
@@ -411,28 +500,61 @@ exports.UserService = UserService = __decorate([
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("@nestjs/config");
+module.exports = require("@nestjs/typeorm");
 
 /***/ }),
 /* 11 */
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ConfigEnum = void 0;
-var ConfigEnum;
-(function (ConfigEnum) {
-    ConfigEnum["DB"] = "DB";
-    ConfigEnum["DB_TYPE"] = "DB_TYPE";
-    ConfigEnum["DB_HOST"] = "DB_HOST";
-    ConfigEnum["DB_PORT"] = "DB_PORT";
-    ConfigEnum["PORT"] = "PORT";
-    ConfigEnum["DB_ROOT_PASSWORD"] = "DB_ROOT_PASSWORD";
-    ConfigEnum["DB_DATABASE"] = "DB_DATABASE";
-    ConfigEnum["DB_USER"] = "DB_USER";
-    ConfigEnum["DB_PASSWORD"] = "DB_PASSWORD";
-})(ConfigEnum || (exports.ConfigEnum = ConfigEnum = {}));
+exports.User = void 0;
+const logs_entity_1 = __webpack_require__(12);
+const roles_entity_1 = __webpack_require__(14);
+const typeorm_1 = __webpack_require__(13);
+const profile_entity_1 = __webpack_require__(15);
+let User = class User {
+};
+exports.User = User;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], User.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "userid", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "username", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => profile_entity_1.Profile, (profile) => profile.user),
+    __metadata("design:type", typeof (_a = typeof profile_entity_1.Profile !== "undefined" && profile_entity_1.Profile) === "function" ? _a : Object)
+], User.prototype, "profile", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => logs_entity_1.Logs, (logs) => logs.user),
+    __metadata("design:type", Array)
+], User.prototype, "logs", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => roles_entity_1.Roles, (roles) => roles.users),
+    (0, typeorm_1.JoinTable)({ name: 'users_roles' }),
+    __metadata("design:type", Array)
+], User.prototype, "roles", void 0);
+exports.User = User = __decorate([
+    (0, typeorm_1.Entity)()
+], User);
 
 
 /***/ }),
@@ -447,11 +569,170 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Logs = void 0;
+const typeorm_1 = __webpack_require__(13);
+const user_entity_1 = __webpack_require__(11);
+let Logs = class Logs {
+};
+exports.Logs = Logs;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], Logs.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Logs.prototype, "path", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Logs.prototype, "method", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Logs.prototype, "data", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Logs.prototype, "result", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.logs),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object)
+], Logs.prototype, "user", void 0);
+exports.Logs = Logs = __decorate([
+    (0, typeorm_1.Entity)()
+], Logs);
+
+
+/***/ }),
+/* 13 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("typeorm");
+
+/***/ }),
+/* 14 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Roles = void 0;
+const typeorm_1 = __webpack_require__(13);
+const user_entity_1 = __webpack_require__(11);
+let Roles = class Roles {
+};
+exports.Roles = Roles;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], Roles.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Roles.prototype, "name", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => user_entity_1.User, (user) => user.roles),
+    __metadata("design:type", Array)
+], Roles.prototype, "users", void 0);
+exports.Roles = Roles = __decorate([
+    (0, typeorm_1.Entity)()
+], Roles);
+
+
+/***/ }),
+/* 15 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Profile = void 0;
+const typeorm_1 = __webpack_require__(13);
+const user_entity_1 = __webpack_require__(11);
+let Profile = class Profile {
+};
+exports.Profile = Profile;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], Profile.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Profile.prototype, "gender", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Profile.prototype, "photo", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Profile.prototype, "address", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
+], Profile.prototype, "birthdate", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => user_entity_1.User),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object)
+], Profile.prototype, "user", void 0);
+exports.Profile = Profile = __decorate([
+    (0, typeorm_1.Entity)()
+], Profile);
+
+
+/***/ }),
+/* 16 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@nestjs/config");
+
+/***/ }),
+/* 17 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RangeModule = void 0;
 const common_1 = __webpack_require__(6);
-const range_controller_1 = __webpack_require__(13);
-const range_service_1 = __webpack_require__(14);
+const range_controller_1 = __webpack_require__(18);
+const range_service_1 = __webpack_require__(19);
 let RangeModule = class RangeModule {
 };
 exports.RangeModule = RangeModule;
@@ -464,7 +745,7 @@ exports.RangeModule = RangeModule = __decorate([
 
 
 /***/ }),
-/* 13 */
+/* 18 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -485,7 +766,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RangeController = void 0;
 const common_1 = __webpack_require__(6);
-const range_service_1 = __webpack_require__(14);
+const range_service_1 = __webpack_require__(19);
 let RangeController = class RangeController {
     constructor(rangeService) {
         this.rangeService = rangeService;
@@ -509,7 +790,7 @@ exports.RangeController = RangeController = __decorate([
 
 
 /***/ }),
-/* 14 */
+/* 19 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -555,211 +836,25 @@ exports.RangeService = RangeService = __decorate([
 
 
 /***/ }),
-/* 15 */
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("@nestjs/typeorm");
-
-/***/ }),
-/* 16 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.User = void 0;
-const logs_entity_1 = __webpack_require__(19);
-const roles_entity_1 = __webpack_require__(20);
-const typeorm_1 = __webpack_require__(17);
-let User = class User {
-};
-exports.User = User;
-__decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
-], User.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], User.prototype, "userid", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], User.prototype, "username", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => logs_entity_1.Logs, (logs) => logs.user),
-    __metadata("design:type", Array)
-], User.prototype, "logs", void 0);
-__decorate([
-    (0, typeorm_1.ManyToMany)(() => roles_entity_1.Roles, (roles) => roles.users),
-    (0, typeorm_1.JoinTable)({ name: 'users_roles' }),
-    __metadata("design:type", Array)
-], User.prototype, "roles", void 0);
-exports.User = User = __decorate([
-    (0, typeorm_1.Entity)()
-], User);
-
-
-/***/ }),
-/* 17 */
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("typeorm");
-
-/***/ }),
-/* 18 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Profile = void 0;
-const typeorm_1 = __webpack_require__(17);
-const user_entity_1 = __webpack_require__(16);
-let Profile = class Profile {
-};
-exports.Profile = Profile;
-__decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
-], Profile.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Profile.prototype, "gender", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Profile.prototype, "photo", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Profile.prototype, "address", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
-], Profile.prototype, "birthdate", void 0);
-__decorate([
-    (0, typeorm_1.OneToOne)(() => user_entity_1.User),
-    (0, typeorm_1.JoinColumn)(),
-    __metadata("design:type", typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object)
-], Profile.prototype, "user", void 0);
-exports.Profile = Profile = __decorate([
-    (0, typeorm_1.Entity)()
-], Profile);
-
-
-/***/ }),
-/* 19 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Logs = void 0;
-const typeorm_1 = __webpack_require__(17);
-const user_entity_1 = __webpack_require__(16);
-let Logs = class Logs {
-};
-exports.Logs = Logs;
-__decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
-], Logs.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Logs.prototype, "path", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Logs.prototype, "method", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Logs.prototype, "data", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Logs.prototype, "result", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.logs),
-    (0, typeorm_1.JoinColumn)(),
-    __metadata("design:type", typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object)
-], Logs.prototype, "user", void 0);
-exports.Logs = Logs = __decorate([
-    (0, typeorm_1.Entity)()
-], Logs);
-
-
-/***/ }),
 /* 20 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Roles = void 0;
-const typeorm_1 = __webpack_require__(17);
-const user_entity_1 = __webpack_require__(16);
-let Roles = class Roles {
-};
-exports.Roles = Roles;
-__decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
-], Roles.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Roles.prototype, "name", void 0);
-__decorate([
-    (0, typeorm_1.ManyToMany)(() => user_entity_1.User, (user) => user.roles),
-    __metadata("design:type", Array)
-], Roles.prototype, "users", void 0);
-exports.Roles = Roles = __decorate([
-    (0, typeorm_1.Entity)()
-], Roles);
+exports.ConfigEnum = void 0;
+var ConfigEnum;
+(function (ConfigEnum) {
+    ConfigEnum["DB"] = "DB";
+    ConfigEnum["DB_TYPE"] = "DB_TYPE";
+    ConfigEnum["DB_HOST"] = "DB_HOST";
+    ConfigEnum["DB_PORT"] = "DB_PORT";
+    ConfigEnum["PORT"] = "PORT";
+    ConfigEnum["DB_ROOT_PASSWORD"] = "DB_ROOT_PASSWORD";
+    ConfigEnum["DB_DATABASE"] = "DB_DATABASE";
+    ConfigEnum["DB_USER"] = "DB_USER";
+    ConfigEnum["DB_PASSWORD"] = "DB_PASSWORD";
+})(ConfigEnum || (exports.ConfigEnum = ConfigEnum = {}));
 
 
 /***/ })
@@ -824,7 +919,7 @@ exports.Roles = Roles = __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("82d180fcaab8ef1f3533")
+/******/ 		__webpack_require__.h = () => ("3b062c909bc6e616a706")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
